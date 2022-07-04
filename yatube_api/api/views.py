@@ -1,6 +1,7 @@
 from api.serializers import CommentSerializer, GroupSerializer, PostSerializer
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, viewsets
+from rest_framework.pagination import LimitOffsetPagination
 
 from .mixins import ListRetrieveViewSet
 from .permissions import IsOwnerOrReadOnly
@@ -12,8 +13,9 @@ class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
     permission_classes = (
         IsOwnerOrReadOnly,
-        permissions.IsAuthenticated,
+        permissions.IsAuthenticatedOrReadOnly,
     )
+    pagination_class = LimitOffsetPagination
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
