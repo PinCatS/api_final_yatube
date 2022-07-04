@@ -27,7 +27,7 @@ class PostAdmin(admin.ModelAdmin):
 
 
 class FollowAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'user', 'author')
+    list_display = ('pk', 'user', 'following')
 
 
 class CommentAdmin(admin.ModelAdmin):

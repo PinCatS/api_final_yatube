@@ -35,9 +35,6 @@ class Post(models.Model):
         'картинка', upload_to='posts/', blank=True, null=True
     )
 
-    class Meta:
-        ordering = ('-pub_date', 'author')
-
     def __str__(self):
         return self.text[:15]
 
@@ -60,15 +57,12 @@ class Comment(models.Model):
         verbose_name='пост',
     )
 
-    class Meta:
-        ordering = ('-created', 'author')
-
     def __str__(self):
         return self.text[:15]
 
 
 class Follow(models.Model):
-    author = models.ForeignKey(
+    following = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='following',

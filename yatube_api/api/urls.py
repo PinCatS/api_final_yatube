@@ -1,6 +1,5 @@
-from api.views import CommentViewSet, GroupViewSet, PostViewSet
-from django.conf.urls import url
-from django.urls import include, path
+from api.views import CommentViewSet, FollowViewSet, GroupViewSet, PostViewSet
+from django.urls import include, path, re_path
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
@@ -10,6 +9,7 @@ router = DefaultRouter()
 
 router.register('posts', PostViewSet)
 router.register('groups', GroupViewSet)
+router.register('follow', FollowViewSet, basename='follow')
 router.register(
     r'^posts/(?P<post_id>\d+)/comments',
     CommentViewSet,
@@ -34,17 +34,17 @@ schema_view = get_schema_view(
 )
 
 urlpatterns += [
-    url(
+    re_path(
         r'^swagger(?P<format>\.json|\.yaml)$',
         schema_view.without_ui(cache_timeout=0),
         name='schema-json',
     ),
-    url(
+    re_path(
         r'^swagger/$',
         schema_view.with_ui('swagger', cache_timeout=0),
         name='schema-swagger-ui',
     ),
-    url(
+    re_path(
         r'^redoc/$',
         schema_view.with_ui('redoc', cache_timeout=0),
         name='schema-redoc',
