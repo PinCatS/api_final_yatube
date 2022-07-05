@@ -5,9 +5,8 @@ from api.serializers import (
     PostSerializer,
 )
 from django.shortcuts import get_object_or_404
-from rest_framework import filters, permissions, status, viewsets
+from rest_framework import filters, permissions, viewsets
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.response import Response
 
 from .mixins import ListCreateViewSet, ListRetrieveViewSet
 from .permissions import IsOwnerOrReadOnly
@@ -40,15 +39,21 @@ class CommentViewSet(viewsets.ModelViewSet):
         permissions.IsAuthenticatedOrReadOnly,
     )
 
-    def get_queryset(self):
+    def get_post(self):
+        """
+        Retrieves post id from url and gets post from db.
+        If post with id doesn't exist, returns 404.
+        """
         post_id = self.kwargs.get("post_id")
-        post = get_object_or_404(Post, pk=post_id)
+        return get_object_or_404(Post, pk=post_id)
+
+    def get_queryset(self):
+        post = self.get_post()
         new_queryset = post.comments
         return new_queryset
 
     def perform_create(self, serializer):
-        post_id = self.kwargs.get("post_id")
-        post = get_object_or_404(Post, pk=post_id)
+        post = self.get_post()
         serializer.save(author=self.request.user, post=post)
 
 
@@ -62,19 +67,5 @@ class FollowViewSet(ListCreateViewSet):
         following = user.follower.all()
         return following
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        following = serializer.validated_data['following']
-        if following.username == request.user.username:
-            return Response(
-                {'details': 'Запрещается подписываться на самого себя.'},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
+    def perform_create(self, serializer):
         serializer.save(user=self.request.user)
-        headers = self.get_success_headers(serializer.data)
-        return Response(
-            serializer.data, status=status.HTTP_201_CREATED, headers=headers
-        )
