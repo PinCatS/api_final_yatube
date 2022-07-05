@@ -39,7 +39,7 @@ class CommentViewSet(viewsets.ModelViewSet):
         permissions.IsAuthenticatedOrReadOnly,
     )
 
-    def get_post(self):
+    def __get_post(self):
         """
         Retrieves post id from url and gets post from db.
         If post with id doesn't exist, returns 404.
@@ -48,12 +48,12 @@ class CommentViewSet(viewsets.ModelViewSet):
         return get_object_or_404(Post, pk=post_id)
 
     def get_queryset(self):
-        post = self.get_post()
+        post = self.__get_post()
         new_queryset = post.comments
         return new_queryset
 
     def perform_create(self, serializer):
-        post = self.get_post()
+        post = self.__get_post()
         serializer.save(author=self.request.user, post=post)
 
 
